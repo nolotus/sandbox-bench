@@ -54,6 +54,18 @@ Measured 2026-10-21 on one host (Fedora 44, kernel 7.2.x, 12 vCPU), one sandbox 
 - Base image is bare: no `bun`, `git`, `curl`. Custom OCI images require a template build first; the template path was not fully verified in this round.
 - No public pricing; usage metered per minute (CPU + memory + storage).
 
+## M3 idle behaviour (measured 2026-10-21)
+
+The realistic agent shape keeps a box across a turn while the model thinks. Measured per provider:
+
+| Provider | idle → sleep | resume latency | sleeping still billed? |
+|---|---|---|---|
+| LithosBox | `running` at 60 s, `slept` at 75 s (no processes) | **630 ms** — equal to the 625 ms warm baseline, no wake penalty | **yes**: one slept window metered `cpu 24 s`, `memory 12,288 MB·s`, `vm 12 s` |
+| LithosBox (with a background process) | never slept through 90 s; process kept writing 1 line/s | 675 ms | n/a |
+| GitHub Codespaces | did not suspend at 90 s idle (uptime 6 min) | 7.1 s per command, dominated by the `gh codespace ssh` tunnel per call | not measured |
+
+Design consequence: **sleep is not free.** Auto-sleep stops CPU burn but memory and box time keep accruing. A session layer that wants to avoid paying for a 10-minute model pause must either accept it, or snapshot-to-storage and destroy the box.
+
 ## Docker Sandbox Cloud
 
 Credits-only entry: not benchmarked here. Prior evidence from the upstream repository: 4 vCPU / 8 GiB at $0.28/h, new sandbox + 38 MB delivery took 95.6 s, warm pool wake 2 s, volume-backed sandboxes cannot hibernate, and a volume remounted into a new sandbox read back empty.
