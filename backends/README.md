@@ -22,6 +22,17 @@ Measured 2026-10-21 on one host (Fedora 44, kernel 7.2.x, 12 vCPU), one sandbox 
 
 ## Daytona
 
+Snapshot / restore (measured 2026-10-21, n=2-3 — **high variance, treat as provisional**):
+
+- create from default: 1.59 s / 1.82 s
+- snapshot create: **6.5 s and 24.9 s** in two runs (variance dominated by sandbox state)
+- create from snapshot: **13.4 s (first-ever, cold node) → 3.3 s → 1.9 s (warm)**. The 13.4 s is an outlier, not the steady state.
+- `networkBlockAll: true` **works**: `curl` inside returns 000/FAILED.
+- `fork()` is **not supported**: rejected for the default container class and also with `sandboxClass: "linux-vm"`.
+
+Also from the SDK surface (not yet exercised): `secrets` mounts org secrets as **opaque placeholders substituted only on outbound requests to allowed hosts** — the same credential-proxy model described in `modes.md`; `networkAllowList` / `domainAllowList` / `outboundProxyUrl`; `autoStopInterval` (default 15 min), `autoPauseInterval` (default 60 min for pausable classes), `autoArchiveInterval` (7 days), `autoDeleteInterval`, `ephemeral`, `ttlMinutes`.
+
+
 - `nproc` inside the sandbox reported **48** while the sandbox was billed as 4 vCPU — the quota is enforced but not reflected in the guest view. Treat guest-visible specs as unreliable for this provider.
 - Default image ships `bun`, `git`, `node`, `python3`, `curl`; a `bun test` run needs no preparation.
 - Open questions: whether outbound network can be denied per sandbox; whether the runtime is a container or a VM.
