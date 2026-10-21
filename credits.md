@@ -47,3 +47,20 @@ Independent observation from this repo: an account showed `Available to spend $8
 - instabox: real concurrency ceiling; whether `/usr` changes survive stop/start; whether stopped machines are billed.
 - Modal and instabox: whether a card is required (not checked).
 - Daytona, E2B, Modal: whether outbound network can be denied per sandbox.
+
+## Other providers worth testing (not yet benchmarked)
+
+These are not in the main table because no probe has been run against them. Numbers are marked with what was actually verified.
+
+| Provider | Free allowance | Verification | Why it is interesting |
+|---|---|---|---|
+| Google Cloud Run (Jobs) | **342,857 vCPU-seconds + 642,857 GiB-seconds per month** (us-central1) ≈ 95 vCPU-hours | verified (pricing page, 2026-10-21) | runs on gVisor; per-100ms billing; container images; closest match to a "remote verification" workload. Requires a billing account with a card, but the free tier does not charge |
+| GitHub Codespaces | monthly included compute quota on personal accounts (exact hours depend on plan) | partially verified (quota exists; hours not read) | 2-core / 8 GB, full shell + git + node + docker preinstalled; free, but it is a dev box, not a per-run isolation boundary |
+| Oracle Cloud Always Free | 4 ARM OCPU + 24 GB RAM + block storage, permanently free | **not verified** (site unreachable during check) | best candidate for *self-hosting* the worker past the break-even point, not for per-run sandboxes |
+| AWS Lambda | 400,000 GB-seconds + 1 M requests per month | **not verified** | Firecracker isolation, ephemeral; no persistent workspace, 15-minute ceiling |
+
+Not free (checked and excluded): Cloudflare Containers, Fly.io machines, Vercel Sandbox.
+
+### How to read this
+
+"Free allowance" describes a monthly quota, not a sandbox product. CodeSpaces and Oracle give you a *box*; Cloud Run and Lambda give you *invocations*. Only the second category resembles the per-run sandbox model measured in `results.jsonl`, and only Cloud Run reports a comparable isolation type (gVisor).
