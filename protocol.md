@@ -59,3 +59,15 @@ Because of the CPU bias, `cpuMs` must not be used to compare implementations or 
 - State the environment for every table: provider, region, image, vCPU, memory, runtime type, kernel, billing model.
 - Link the raw `results.jsonl` next to any summary.
 - List failed probes explicitly. A run with failures is not "passing with caveats" — it is a failed probe with a latency number attached.
+
+## 6. Repetition across sessions (variance is a defect, not noise)
+
+A single sample has already produced an inverted conclusion in this project: one cold restore read 13.4 s, while repeats at warm state read 1.9-3.3 s.
+
+Rules:
+
+1. **Same experiment, ≥10 attempts, spread over time.** Do not run all attempts back to back and call it variance-free: schedule them across different times of day and different days. Record the ISO timestamp of every attempt in `results.jsonl`.
+2. **Report p50 / p95 / min / max AND dispersion** (`max/min` ratio, or coefficient of variation) for every latency group.
+3. **A single sample is never a conclusion.** If a figure rests on n < 10, the row must carry `insufficient repetitions` in `note`, and prose must not rank providers on it.
+4. **Separate first-ever from steady state.** First restore on a cold node, first image build, first pull: these are one-time costs. Record them as their own rows (`note: first-ever`) and never average them into the steady-state group.
+5. **Re-measure after any provider-side change** (region, plan, image, API version) and keep the old rows; do not overwrite history.
