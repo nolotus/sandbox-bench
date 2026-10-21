@@ -100,7 +100,7 @@ The realistic agent shape keeps a box across a turn while the model thinks. Meas
 
 | Provider | idle → sleep | resume latency | sleeping still billed? |
 |---|---|---|---|
-| LithosBox | `running` at 60 s, `slept` at 75 s (no processes) | **p50 618 ms (n=5: 601/618/623/610/646, CV 0.03)** — equal to the 669 ms warm baseline, no wake penalty | **yes**: one slept window metered `cpu 24 s`, `memory 12,288 MB·s`, `vm 12 s` |
+| LithosBox | `running` at 60 s, `slept` at 75 s (no processes) | **p50 617 ms (n=10 across 2 sessions: 601/618/623/610/646 + 612/845/616/606/745, max 845, CV 0.09)** — equal to the 669 ms warm baseline, no wake penalty | **yes**: one slept window metered `cpu 24 s`, `memory 12,288 MB·s`, `vm 12 s` |
 | LithosBox (with a background process) | never slept through 90 s; process kept writing 1 line/s | 675 ms | n/a |
 | GitHub Codespaces | did not suspend at 90 s idle (uptime 6 min) | 7.1 s per command, dominated by the `gh codespace ssh` tunnel per call | not measured |
 
