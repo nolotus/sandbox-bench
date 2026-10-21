@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nolotus/sandbox-bench/schema/results.schema.json",
+  "title": "sandbox-bench result record",
+  "description": "One JSON object per line in results.jsonl. The first line MUST be the environment record (phase=meta, case=environment, attempt=0).",
+  "type": "object",
+  "required": ["ts", "monoMs", "phase", "case", "attempt", "coldHot", "ok"],
+  "additionalProperties": false,
+  "properties": {
+    "ts": { "type": "string", "format": "date-time", "description": "Wall clock at write time (ISO 8601)." },
+    "monoMs": { "type": "number", "minimum": 0, "description": "Monotonic milliseconds since process start; used for ordering independent of clock adjustments." },
+    "phase": { "enum": ["meta", "W0", "W1", "W2", "W3", "W4", "W5", "W6"] },
+    "case": { "type": "string", "minLength": 1 },
+    "attempt": { "type": "integer", "minimum": 0, "description": "1-based attempt number; 0 marks a derived summary record." },
+    "coldHot": { "enum": ["cold", "hot", "n/a"] },
+    "durationMs": { "type": ["number", "null"], "minimum": 0 },
+    "prepareMs": { "type": ["number", "null"], "minimum": 0 },
+    "firstExecMs": { "type": ["number", "null"], "minimum": 0 },
+    "endToEndMs": { "type": ["number", "null"], "minimum": 0 },
+    "peakRssKb": { "type": ["number", "null"], "minimum": 0 },
+    "cpuMs": { "type": ["number", "null"], "minimum": 0, "description": "Lower bound: per-PID utime+stime deltas; see protocol.md §4." },
+    "ioBytes": { "type": ["number", "null"], "minimum": 0 },
+    "bytes": { "type": ["number", "null"], "minimum": 0, "description": "Payload size for transfer steps (bundle, archive)." },
+    "samples": {
+      "type": ["array", "null"],
+      "items": { "type": "number" },
+      "description": "Raw per-attempt values when the record summarizes a repetition group."
+    },
+    "ok": { "type": "boolean" },
+    "note": { "type": ["string", "null"], "maxLength": 1000 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "phase": { "const": "meta" } }, "required": ["phase"] },
+      "then": { "required": ["note"], "properties": { "attempt": { "const": 0 } } }
+    }
+  ]
+}

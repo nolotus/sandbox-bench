@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nolotus/sandbox-bench/schema/environment.schema.json",
+  "title": "sandbox-bench environment record",
+  "description": "Required head record of every results.jsonl. Unrecorded values MUST be null, never guessed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "region", "image", "cpus", "memory_mb", "runtime", "kernel", "billingModel", "observedAt"],
+  "properties": {
+    "provider": { "type": "string", "description": "e.g. bwrap, daytona, e2b, modal, instabox, lithosbox, docker-sandbox-cloud" },
+    "region": { "type": ["string", "null"] },
+    "image": { "type": ["string", "null"], "description": "Image reference or base template actually used." },
+    "cpus": { "type": ["number", "null"], "description": "vCPU requested." },
+    "memory_mb": { "type": ["number", "null"], "description": "Memory requested, MiB." },
+    "runtime": { "enum": ["container", "vm", "gvisor", "namespace", "unknown"] },
+    "kernel": { "type": ["string", "null"], "description": "Prefix with host: or guest: so a shared-kernel sandbox is not mistaken for its own kernel." },
+    "billingModel": { "type": ["string", "null"], "description": "e.g. per-second, per-minute, free, plan" },
+    "observedAt": { "type": "string", "format": "date" },
+    "guestReported": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "cpus": { "type": ["number", "null"], "description": "What the sandbox itself reports (nproc). Divergence from cpus means the quota is not reflected in the guest view." },
+        "memory_mb": { "type": ["number", "null"] }
+      }
+    },
+    "egress": { "enum": ["open", "disabled-by-option", "blocked", "unknown", null] },
+    "notes": { "type": ["string", "null"] }
+  }
+}
