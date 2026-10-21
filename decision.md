@@ -15,8 +15,8 @@ Three loops, three different bottlenecks:
 | Mode | Recommended form | Why (measured) |
 |---|---|---|
 | **M1** | Modal (warm image) or Daytona | Modal warm create **289 ms** after the image is built (gVisor boundary); Daytona create p50 **1.65 s**, snapshot restore **2.21 s** (n=10). Both bill per second, both sit inside the free allowance for our volume |
-| **M2** | GitHub Codespaces over a **persistent SSH connection** | **203 ms per command** (n=10) once the connection is multiplexed, vs 7–9 s when `gh` spawns a tunnel per call. Persistent disk, no suspend at 90 s idle |
-| **M3** | instabox (persistent `/data`) or Codespaces | instabox: stop → start → running **5.36 s**, `/data` intact, **zero transfer**. Codespaces: same disk persistence, 203 ms commands |
+| **M2** | GitHub Codespaces over a **persistent SSH connection** | **p50 191 ms / p95 195 ms per command (n=20 across 2 sessions, CV 0.01)** once the connection is multiplexed, vs 7–9 s when `gh` spawns a tunnel per call. Persistent disk, no suspend at 90 s idle |
+| **M3** | **Codespaces** (persistent disk, 191 ms commands) or **LithosBox** (wake 618 ms p50, n=5) | instabox measured worse than first thought: start **5.2–19.7 s (p50 6.7 s, CV 0.53) with 2/10 starts exceeding 60 s** — `/data` persistence is still the best part, but the latency is not |
 | **Large repos, any mode** | Never re-upload | Cold path costs **3.8 MB/s** (15.3 MB in 4.04 s) and scales with repo size; snapshot/start paths are flat (3.72 s snapshot restore, 5.36 s instabox start) |
 | **Multi-tenant isolation** | Not solved by any free tier | see §4 |
 
