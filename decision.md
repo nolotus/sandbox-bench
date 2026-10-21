@@ -15,8 +15,8 @@ Three loops, three different bottlenecks:
 | Mode | Recommended form | Why (measured) |
 |---|---|---|
 | **M1** | Modal (warm image) or Daytona | Modal warm create **289 ms** after the image is built (gVisor boundary); Daytona create p50 **1.65 s**, snapshot restore **2.21 s** (n=10). Both bill per second, both sit inside the free allowance for our volume |
-| **M2** | GitHub Codespaces over a **persistent SSH connection** | **p50 191 ms / p95 195 ms per command (n=20 across 2 sessions, CV 0.01)** once the connection is multiplexed, vs 7–9 s when `gh` spawns a tunnel per call. Persistent disk, no suspend at 90 s idle |
-| **M3** | **Codespaces** (persistent disk, 191 ms commands) or **LithosBox** (wake 618 ms p50, n=5) | instabox measured worse than first thought: start **5.2–19.7 s (p50 6.7 s, CV 0.53) with 2/10 starts exceeding 60 s** — `/data` persistence is still the best part, but the latency is not |
+| **M2** | GitHub Codespaces over a **persistent SSH connection** | **per-command latency UNMEASURED.** An earlier 191 ms/cmd figure (n=20) is **retracted**: the harness never executed the remote command — a connectivity proof (`echo HELLO`) printed *nothing*, so those timings measured a failing ssh invocation, not execution. The working path (`gh codespace ssh -c <name> -- <cmd>`) costs **7–9 s per command** because it spawns a tunnel per call. Multiplexing must be re-measured before any latency claim. Persistent disk, no suspend at 90 s idle |
+| **M3** | **Codespaces** (persistent disk; per-command latency unmeasured, see M2) or **LithosBox** (wake 618 ms p50, n=5) | instabox measured worse than first thought: start **5.2–19.7 s (p50 6.7 s, CV 0.53) with 2/10 starts exceeding 60 s** — `/data` persistence is still the best part, but the latency is not |
 | **Large repos, any mode** | Never re-upload | Cold path costs **3.8 MB/s** (15.3 MB in 4.04 s) and scales with repo size; snapshot/start paths are flat (3.72 s snapshot restore, 5.36 s instabox start) |
 | **Multi-tenant isolation** | Not solved by any free tier | see §4 |
 
@@ -51,7 +51,7 @@ At our measured cost of ≈ $0.008 per 3-minute verification run, $200 is ~24 00
 
 - Modal: idle behaviour, network policy beyond "open", volume-backed reuse.
 - LithosBox: custom-image/template path (one attempt did not produce `bun`), billed-idle cost at scale.
-- Codespaces: clone over the multiplexed channel returned an implausible 201 ms — treat as unmeasured.
+- Codespaces: **every** number produced through the multiplexed channel is suspect, not just the 201 ms clone. The channel was shown not to execute remote commands at all (silent `echo`), so the whole 186–193 ms band (clone / noop / CPU-loop) is measuring the failed invocation's return time. Status: **not measured**.
 - Every figure above except the Daytona n=10 runs is **n=1–3**; per `protocol.md` §6 these must be repeated across sessions before being used for ranking inside a mode.
 
 ## 7. One table: mode × provider
@@ -60,7 +60,7 @@ Cell meaning: **OK** = measured and adequate for that mode; **weak** = works but
 
 | Provider | Free allowance | In our units (2 vCPU / 4 GiB, 3-min run ≈ $0.008) | M1 out-of-loop | M2 in-loop | M3 persistent |
 |---|---|---|---|---|---|
-| **Codespaces** | monthly quota (hours depend on plan) | not monetary — it is a time quota | OK (batch over one session) | **OK — 191 ms/cmd, n=20, CV 0.01** | **OK — disk persists, no suspend at 90 s** |
+| **Codespaces** | monthly quota (hours depend on plan) | not monetary — it is a time quota | OK (batch over one session) | **UNMEASURED — 191 ms/cmd retracted (harness did not execute)** | **OK — disk persists, no suspend at 90 s** |
 | **LithosBox** | no published price | unknown | weak (no price transparency) | OK — 620 ms/cmd | OK — wake 618 ms (n=5), but **sleeping is billed** |
 | **Daytona** | $200 credit | ≈ 12 000 runs at 4 vCPU/8 GiB; ≈ 24 000 at 2/4 | **OK — snapshot restore 2.2 s, create 1.65 s** | OK — ~820 ms/cmd | OK — snapshot 2.2 s; `autoPause` 60 min |
 | **E2B** | $100 one-time | ≈ 12 000 runs at 2/4 | OK — create 696 ms | weak — 1.0–1.1 s/cmd | weak — 1 h session cap on Hobby |
@@ -70,6 +70,6 @@ Cell meaning: **OK** = measured and adequate for that mode; **weak** = works but
 
 ### Reading the table
 
-- **M2 is decided by per-command latency alone** — a 4× difference (191 ms vs 820 ms vs 1.4 s) compounds: a 30-call turn costs 5.7 s vs 25 s vs 42 s of pure round-trip.
+- **M2 cannot be decided yet**: its only headline number (191 ms/cmd) is retracted. If multiplexing does hold, a 4× spread (191 ms vs 820 ms vs 1.4 s) would compound — 5.7 s vs 25 s vs 42 s of pure round-trip for a 30-call turn — which is why re-measuring this one figure matters more than adding rows.
 - **M3 is decided by what happens during model thinking**: only Codespaces and Daytona survive 60+ s of idle without a visible penalty; Lithos sleeps but wakes in 0.6 s (and bills for it); instabox's restart is too variable.
 - **M1 is decided by cost and correctness**, and there the free allowances are effectively unlimited for evaluation volume — the constraint is egress control, not money.

@@ -56,7 +56,7 @@ Also from the SDK surface (not yet exercised): `secrets` mounts org secrets as *
 - Idle 90 s with no processes: no suspend; next exec 1.04 s vs 1.57 s baseline — no penalty, but the box keeps running (Hobby has a 1 h per-session cap).
 - Non-root guest: `/work` is not writable, use the home directory.
 - Ships `git`, `curl`, `node`, `python3`; no `bun` (install it: ~2.9 s).
-- Create is the fastest observed (696 ms). `exec` round-trip: **p50 1066 ms (n=10, 968–1173 ms, CV 0.06)** — but measured through the `e2b` CLI, which spawns a process per call, so treat it as an **upper bound**: the same measurement style overestimated Codespaces by 40× (7–9 s CLI vs 191 ms multiplexed).
+- Create is the fastest observed (696 ms). `exec` round-trip: **p50 1066 ms (n=10, 968–1173 ms, CV 0.06)** — but measured through the `e2b` CLI, which spawns a process per call, so treat it as an **upper bound**: a multiplexed Codespaces figure was briefly reported 40× lower (191 ms), but that harness turned out **not to execute remote commands at all** and the figure is retracted — see `decision.md` M2.
 - Open question: runtime type (container vs microVM).
 
 - Non-root guest: `/work` is not writable, use the home directory.
