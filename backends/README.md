@@ -42,7 +42,16 @@ Measured 2026-10-21 on one host (Fedora 44, kernel 7.2.x, 12 vCPU), one sandbox 
 
 ## instabox
 
-- Whole VM per machine, fixed 4 vCPU / 8 GB, `/data` persists across stop/start.
+Measured 2026-10-21 (free plan, `agent-browser` template):
+
+- **create → running: 2.4 s / 11.1 s** across two runs (async operation: `POST /machines` returns `operationId`, then poll).
+- **stop → start → running: 5.4 s**, and `/data` content **survives** (marker file read back after restart). Second run needs **zero re-upload**.
+- exec round-trip 570 ms; kernel `6.18.54-instabox`; `nproc` = 4 (honest quota).
+- `/data` is `root:root` — writes from the non-root exec user require `sudo -n` (passwordless, confirmed).
+- Free plan can only create from the **`agent-browser` template or a snapshot**; `universal` is rejected with `template_not_allowed`.
+- `DELETE` requires an `Idempotency-Key` header (otherwise 400); create responses carry both `id` (operation) and `machineId`.
+
+- Whole VM per machine, 4 vCPU / 8 GB, `/data` persists across stop/start.
 - `sudo` is passwordless inside; outbound network is open with no per-machine control — **not** a tenant-isolation candidate as-is.
 - Orphan cleanup is manual (`cloudSlotReconciler` only reports).
 - Real concurrency ceiling is unverified.
