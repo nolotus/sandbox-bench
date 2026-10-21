@@ -24,6 +24,7 @@ This is deliberately *not* a model benchmark. For LLM API latency / caching / st
 
 ```
 protocol.md                  measurement rules (W0–W6, metrics, known bias)
+modes.md                     execution modes M1–M3 and workspace strategies
 credits.md                   free tier / credits per provider, with verification status
 schema/results.schema.json   one JSON object per line (results.jsonl)
 schema/environment.schema.json  the required head record
