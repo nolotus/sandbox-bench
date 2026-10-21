@@ -95,3 +95,16 @@ This project only uses **local execution and free tiers**. A paid feature is not
 | GitHub Codespaces | included quota | GitHub-managed | native git auth |
 
 Consequence for the design: "credentials never enter the sandbox" is achievable on local bwrap and on Daytona with an allowlist, but **not** on providers whose only switch is "internet on/off". For those, the honest options are platform-side materialization (no credentials at all in the box) or a short-lived scoped token with an explicit risk label.
+
+### Measured: cost of the "Nth run" (2026-10-21)
+
+Two ways to reach a runnable workspace, measured on Daytona with a 15.3 MB incompressible tree (2 000 files):
+
+| Path | create / restore | transfer | materialize | total |
+|---|---|---|---|---|
+| Cold: create + upload bundle + clone | 1.82 s | **4.04 s for 15.3 MB (~3.8 MB/s)** | 0.89 s | **6.76 s** |
+| Snapshot: restore a materialized workspace | **3.72 s** | 0 (carried in the snapshot) | 0.63 s verify | **3.72 s** |
+
+One-time snapshot cost: 8.40 s. For comparison, the historic Docker Cloud figure was 38 MB delivered in 95.6 s (~0.4 MB/s), i.e. an order of magnitude worse per byte.
+
+Take-away: the cold path scales with repository size, the snapshot path does not — that is the whole argument for persistent boxes or snapshots over per-run transfer.
