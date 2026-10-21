@@ -32,7 +32,9 @@ Ten-attempt runs (2026-10-21, sequential with 1.5 s gaps; per protocol item 6 th
 - early single-sample figure of 13.4 s was a **first-ever restore on a cold node**; steady state is ~2 s
 
 Interpretation: on Daytona a snapshot restore is **not faster than a default create** — the default image is already warm. The value of the snapshot is carrying workspace state, i.e. **zero re-upload**, not lower latency.
-- `networkBlockAll: true` **works**: `curl` inside returns 000/FAILED.
+- `networkBlockAll: true` **works**: all egress blocked, including the normally allowed dev domains.
+- **Default egress is a domain allowlist, not "open"**: in a default sandbox `bun.sh`, `github.com`, `registry.npmjs.org`, `pypi.org`, `api.github.com` all return 200, while `example.com` returns 000 — the connection is reset after the TLS ClientHello, i.e. filtering happens on SNI, not on reachability. DNS inside points at 8.8.8.8 / 1.1.1.1.
+- Consequence: `networkAllowList` (CIDR) **cannot add an arbitrary destination** — `1.1.1.1/32` did not make `1.1.1.1` reachable. So an operator-owned credential proxy on a new domain is **not viable on Daytona**; the allowlist is ours to shrink, not to extend.
 - `fork()` is **not supported**: rejected for the default container class and also with `sandboxClass: "linux-vm"`.
 
 Also from the SDK surface (not yet exercised): `secrets` mounts org secrets as **opaque placeholders substituted only on outbound requests to allowed hosts** — the same credential-proxy model described in `modes.md`; `networkAllowList` / `domainAllowList` / `outboundProxyUrl`; `autoStopInterval` (default 15 min), `autoPauseInterval` (default 60 min for pausable classes), `autoArchiveInterval` (7 days), `autoDeleteInterval`, `ephemeral`, `ttlMinutes`.

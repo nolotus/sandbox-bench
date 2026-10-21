@@ -88,7 +88,7 @@ This project only uses **local execution and free tiers**. A paid feature is not
 |---|---|---|---|
 | bwrap (local) | always free | full network namespace control | resolve locally, never place credentials in the sandbox |
 | instabox | 5 machines, `agent-browser` template or snapshot only | **none** (measured: free outbound, passwordless sudo) | materialize on the platform side (clone/pull outside, deliver bundle) or a short-lived scoped token |
-| Daytona | $200 credit | `networkBlockAll` works; `networkAllowList` / `outboundProxyUrl` present | own proxy via allowlist, or a short-lived scoped token. **Org Secrets is a gated feature — not used** |
+| Daytona | $200 credit | default = **domain allowlist** (dev domains 200, `example.com` reset at TLS); `networkBlockAll` works; `networkAllowList` cannot add destinations | **platform-side materialization** (git pull works for GitHub, which is allowlisted) or a short-lived scoped token. Own proxy not viable; **Org Secrets is a gated feature — not used** |
 | LithosBox | no published price | `disable_internet` is all-or-nothing | bundle-only, or short-lived token. A proxy cannot be the sole egress target when the switch is binary |
 | Modal | $30/month | not measured | same as above until measured |
 | GitHub Codespaces | included quota | GitHub-managed | native git auth |
