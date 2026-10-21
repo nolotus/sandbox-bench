@@ -26,8 +26,14 @@ Snapshot / restore (measured 2026-10-21, n=2-3 — **high variance, treat as pro
 
 Ten-attempt runs (2026-10-21, sequential with 1.5 s gaps; per protocol item 6 these still need re-runs at other times):
 
-- **create default (n=10): min 1.40 s, p50 1.65 s, p95 2.62 s, CV 0.24**
-- **create from snapshot (n=10): min 1.98 s, p50 2.21 s, p95 2.69 s, CV 0.10**
+Two independent sessions, 10 attempts each:
+
+| path | session 1 p50 | session 2 p50 | tails |
+|---|---|---|---|
+| create default | 1.65 s | 1.54 s | session 1 max 2.62 s; **session 2 max 24.49 s** (CV 1.66) |
+| create from snapshot | 2.21 s | 1.69 s | both sessions max ≤ 2.69 s (CV 0.10 / 0.15) |
+
+The p50s agree across sessions; the **tails do not**. Creating from the default image occasionally takes tens of seconds, while snapshot restore stayed under 2.7 s in 20 attempts.
 - snapshot create: 6.4 s in this run (6.5 s and 24.9 s in earlier single samples — high variance)
 - early single-sample figure of 13.4 s was a **first-ever restore on a cold node**; steady state is ~2 s
 
