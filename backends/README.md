@@ -24,9 +24,14 @@ Measured 2026-10-21 on one host (Fedora 44, kernel 7.2.x, 12 vCPU), one sandbox 
 
 Snapshot / restore (measured 2026-10-21, n=2-3 — **high variance, treat as provisional**):
 
-- create from default: 1.59 s / 1.82 s
-- snapshot create: **6.5 s and 24.9 s** in two runs (variance dominated by sandbox state)
-- create from snapshot: **13.4 s (first-ever, cold node) → 3.3 s → 1.9 s (warm)**. The 13.4 s is an outlier, not the steady state.
+Ten-attempt runs (2026-10-21, sequential with 1.5 s gaps; per protocol item 6 these still need re-runs at other times):
+
+- **create default (n=10): min 1.40 s, p50 1.65 s, p95 2.62 s, CV 0.24**
+- **create from snapshot (n=10): min 1.98 s, p50 2.21 s, p95 2.69 s, CV 0.10**
+- snapshot create: 6.4 s in this run (6.5 s and 24.9 s in earlier single samples — high variance)
+- early single-sample figure of 13.4 s was a **first-ever restore on a cold node**; steady state is ~2 s
+
+Interpretation: on Daytona a snapshot restore is **not faster than a default create** — the default image is already warm. The value of the snapshot is carrying workspace state, i.e. **zero re-upload**, not lower latency.
 - `networkBlockAll: true` **works**: `curl` inside returns 000/FAILED.
 - `fork()` is **not supported**: rejected for the default container class and also with `sandboxClass: "linux-vm"`.
 
