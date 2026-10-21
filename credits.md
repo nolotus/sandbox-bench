@@ -48,19 +48,23 @@ Independent observation from this repo: an account showed `Available to spend $8
 - Modal and instabox: whether a card is required (not checked).
 - Daytona, E2B, Modal: whether outbound network can be denied per sandbox.
 
-## Other providers worth testing (not yet benchmarked)
+## Card-free providers only
 
-These are not in the main table because no probe has been run against them. Numbers are marked with what was actually verified.
+This project only tests providers that can be used **without a credit card**. Anything that requires a billing account is out of scope, even when it has a free tier: a free quota behind a card is not the same as a free sandbox.
 
-| Provider | Free allowance | Verification | Why it is interesting |
+| Provider | Free allowance | Card | Why it is in or out |
 |---|---|---|---|
-| Google Cloud Run (Jobs) | **342,857 vCPU-seconds + 642,857 GiB-seconds per month** (us-central1) ≈ 95 vCPU-hours | verified (pricing page, 2026-10-21) | runs on gVisor; per-100ms billing; container images; closest match to a "remote verification" workload. Requires a billing account with a card, but the free tier does not charge |
-| GitHub Codespaces | monthly included compute quota on personal accounts (exact hours depend on plan) | partially verified (quota exists; hours not read) | 2-core / 8 GB, full shell + git + node + docker preinstalled; free, but it is a dev box, not a per-run isolation boundary |
-| Oracle Cloud Always Free | 4 ARM OCPU + 24 GB RAM + block storage, permanently free | **not verified** (site unreachable during check) | best candidate for *self-hosting* the worker past the break-even point, not for per-run sandboxes |
-| AWS Lambda | 400,000 GB-seconds + 1 M requests per month | **not verified** | Firecracker isolation, ephemeral; no persistent workspace, 15-minute ceiling |
+| Daytona | $200 compute | no | in — measured |
+| E2B | $100 one-time | no | in — measured |
+| Modal | $30 / month | no | in — measured |
+| instabox | 5 machines | no | in — measured |
+| LithosBox | none published | n/a | in — measured, no card needed to run |
+| GitHub Codespaces | monthly compute quota on personal accounts (hours depend on plan; not read this round) | no | candidate — a dev box, not a per-run boundary |
+| Docker Sandbox Cloud | $250 | **yes** | excluded by the no-card rule |
+| Google Cloud Run | only a **"Delayed Jobs"** free-tier line was readable on the pricing page; a general Cloud Run free tier was **not confirmed** | **yes** (billing account) | excluded |
+| AWS Lambda | 400,000 GB-seconds / month (perpetual fee tier) | **yes** | excluded |
+| Oracle Cloud Always Free | 4 ARM OCPU / 24 GB | **yes** (card for identity verification) | excluded |
 
-Not free (checked and excluded): Cloudflare Containers, Fly.io machines, Vercel Sandbox.
+### Correction note
 
-### How to read this
-
-"Free allowance" describes a monthly quota, not a sandbox product. CodeSpaces and Oracle give you a *box*; Cloud Run and Lambda give you *invocations*. Only the second category resembles the per-run sandbox model measured in `results.jsonl`, and only Cloud Run reports a comparable isolation type (gVisor).
+An earlier revision of this file listed Google Cloud Run as a verified ~95 vCPU-hour free allowance. That was wrong: the quota actually printed on the pricing page is titled **"Delayed Jobs Free tier"**, a feature-specific allowance, not a general Cloud Run entitlement. It is corrected here, and Cloud Run is excluded on the card requirement regardless.
