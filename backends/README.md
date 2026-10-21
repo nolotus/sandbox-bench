@@ -70,7 +70,7 @@ Also from the SDK surface (not yet exercised): `secrets` mounts org secrets as *
 Measured 2026-10-21 (free plan, `agent-browser` template):
 
 - **create → running: 2.4 s / 11.1 s** across two runs (async operation: `POST /machines` returns `operationId`, then poll).
-- **stop → start → running: 5.4 s**, and `/data` content **survives** (marker file read back after restart). Second run needs **zero re-upload**.
+- **stop → start → running: variable** — n=10 valid starts: min **5.17 s**, p50 **7.39 s**, p95 **16.6 s**, max **19.7 s** (CV 0.55), and **2 of 10 further starts exceeded a 60 s poll window**. The earlier single-shot 5.4 s was the best case. `/data` content **survives** (marker file read back after restart). Second run needs **zero re-upload**.
 - exec round-trip 570 ms; kernel `6.18.54-instabox`; `nproc` = 4 (honest quota).
 - `/data` is `root:root` — writes from the non-root exec user require `sudo -n` (passwordless, confirmed).
 - Free plan can only create from the **`agent-browser` template or a snapshot**; `universal` is rejected with `template_not_allowed`.
