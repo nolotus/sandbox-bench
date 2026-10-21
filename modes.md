@@ -79,3 +79,18 @@ Beyond the W0–W6 workloads:
 ## Reporting rule
 
 Every result row must carry its mode. A provider ranked on M2 latency cannot be ranked on M1 cost, and neither ranking says anything about M3 until the idle behaviour is measured.
+
+## Credential strategy under the free/local-only rule
+
+This project only uses **local execution and free tiers**. A paid feature is not a design input, even when it is the cleanest solution on paper (example: Daytona's Organization Secrets API returns `Access denied` on the free account — we do not upgrade to use it).
+
+| Provider | Free tier | Egress control on the free tier | Credential strategy that works |
+|---|---|---|---|
+| bwrap (local) | always free | full network namespace control | resolve locally, never place credentials in the sandbox |
+| instabox | 5 machines, `agent-browser` template or snapshot only | **none** (measured: free outbound, passwordless sudo) | materialize on the platform side (clone/pull outside, deliver bundle) or a short-lived scoped token |
+| Daytona | $200 credit | `networkBlockAll` works; `networkAllowList` / `outboundProxyUrl` present | own proxy via allowlist, or a short-lived scoped token. **Org Secrets is a gated feature — not used** |
+| LithosBox | no published price | `disable_internet` is all-or-nothing | bundle-only, or short-lived token. A proxy cannot be the sole egress target when the switch is binary |
+| Modal | $30/month | not measured | same as above until measured |
+| GitHub Codespaces | included quota | GitHub-managed | native git auth |
+
+Consequence for the design: "credentials never enter the sandbox" is achievable on local bwrap and on Daytona with an allowlist, but **not** on providers whose only switch is "internet on/off". For those, the honest options are platform-side materialization (no credentials at all in the box) or a short-lived scoped token with an explicit risk label.
