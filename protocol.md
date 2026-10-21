@@ -15,6 +15,7 @@ A number is only publishable if all of the following hold.
 
 ```
 results.jsonl     first line = environment record, then one record per attempt
+results/          committed evidence, one file per measurement session (YYYY-MM-DD-*.jsonl)
 aggregates.json   derived statistics; the only source for numbers quoted in prose
 ```
 
@@ -32,6 +33,7 @@ Fixtures are synthetic. No real credentials, no user data.
 | W3 | Real test run | `bun test` on a fixed fixture; record exit result + peak RSS / CPU / block IO |
 | W4 | Concurrency | 1 / 2 / 4 / 8 sandboxes running the same CPU-bound command; plus host responsiveness while all are busy |
 | W5 | Persistence | retain → destroy → recreate → compare sha256 and permission bits of modified and untracked files |
+| W7 | Idle behaviour | no activity for 15/30/45/60/90 s: does it sleep, is the sleep billed, what is the resume latency, do processes survive |
 | W6 | Denial tests | parent project, `~/.ssh`, `/etc/shadow`, host `/proc`, unix sockets, LAN, cloud metadata, mount table, symlink and traversal escapes, cross-tenant read/write |
 
 W6 is a safety gate, not a performance number: a bypass is an immediate failure of that backend, regardless of its latency.

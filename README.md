@@ -29,6 +29,8 @@ credits.md                   free tier / credits per provider, with verification
 schema/results.schema.json   one JSON object per line (results.jsonl)
 schema/environment.schema.json  the required head record
 backends/README.md           per-provider capabilities, measured numbers, open questions
+backends/lithosbox-sleep.md  sleep threshold, resume latency, sleep billing (M3)
+results/                     committed raw evidence, one file per session
 CONTRIBUTING.md              how to add a backend, and what must never be committed
 ```
 
