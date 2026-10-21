@@ -90,7 +90,8 @@ This project only uses **local execution and free tiers**. A paid feature is not
 | instabox | 5 machines, `agent-browser` template or snapshot only | **open** (all 6 probed domains return 200; passwordless sudo) | materialize on the platform side (clone/pull outside, deliver bundle) or a short-lived scoped token |
 | Daytona | $200 credit | default = **domain allowlist** (dev domains 200, `example.com` reset at TLS); `networkBlockAll` works; `networkAllowList` cannot add destinations | **platform-side materialization** (git pull works for GitHub, which is allowlisted) or a short-lived scoped token. Own proxy not viable; **Org Secrets is a gated feature — not used** |
 | LithosBox | no published price | **open by default** (all 6 probed domains 200); `disable_internet` is all-or-nothing | bundle-only, or short-lived token. A proxy cannot be the sole egress target when the switch is binary |
-| Modal | $30/month | not measured | same as above until measured |
+| Modal | $30/month | open (measured: outbound 200) | bundle-only or short-lived token; a proxy cannot be enforced |
+| E2B | $100 one-time | **open** (all 6 domains 200, no per-domain filter) | bundle-only or short-lived token |
 | GitHub Codespaces | included quota | GitHub-managed | native git auth |
 
 Consequence for the design: "credentials never enter the sandbox" is achievable on local bwrap and on Daytona with an allowlist, but **not** on providers whose only switch is "internet on/off". For those, the honest options are platform-side materialization (no credentials at all in the box) or a short-lived scoped token with an explicit risk label.

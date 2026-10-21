@@ -46,6 +46,13 @@ Also from the SDK surface (not yet exercised): `secrets` mounts org secrets as *
 
 ## E2B
 
+- Egress **open**: all six probed domains return 200 (no per-domain filtering, and no API-level block observed).
+- Idle 90 s with no processes: no suspend; next exec 1.04 s vs 1.57 s baseline — no penalty, but the box keeps running (Hobby has a 1 h per-session cap).
+- Non-root guest: `/work` is not writable, use the home directory.
+- Ships `git`, `curl`, `node`, `python3`; no `bun` (install it: ~2.9 s).
+- Create is the fastest observed (696 ms) but each `exec` round-trip is the slowest of the measured set (~1.0–1.1 s).
+- Open question: runtime type (container vs microVM).
+
 - Non-root guest: `/work` is not writable, use the home directory.
 - Ships `git`, `curl`, `node`, `python3`; no `bun` (install it: ~2.9 s).
 - Create is the fastest observed (696 ms) but each `exec` round-trip is the slowest of the measured set.
